@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 
-class MainViewModel : ViewModel() {
+class GameScreenViewModel : ViewModel() {
 
     var uiState by mutableStateOf(MainUiState(loading = false, emojiList = emojis.shuffled()))
         private set
