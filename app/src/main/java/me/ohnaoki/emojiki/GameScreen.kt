@@ -1,5 +1,6 @@
 package me.ohnaoki.emojiki
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,6 +29,8 @@ import kotlinx.coroutines.delay
 fun GameScreen(viewModel: GameScreenViewModel = viewModel()) {
     val uiState = viewModel.uiState
     val uiEffect = viewModel.uiEffect
+
+    BackHandler(enabled = true) {}
 
     GameScreenContent(
         uiState = uiState,
