@@ -1,6 +1,5 @@
 package me.ohnaoki.emojiki
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,20 +22,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import kotlinx.coroutines.delay
 
 @Composable
-fun GameScreen(viewModel: GameScreenViewModel = viewModel()) {
+fun GameScreen(navController: NavController, viewModel: GameScreenViewModel = viewModel()) {
     val uiState = viewModel.uiState
     val uiEffect = viewModel.uiEffect
-
-    BackHandler(enabled = true) {}
 
     GameScreenContent(
         uiState = uiState,
         uiEffect = uiEffect,
         onEmojiTapped = viewModel::onEmojiTapped,
-        onCompleteAnimation = viewModel::onCompleteAnimationEnded
+        onCompleteAnimation = viewModel::onCompleteAnimationEnded,
+        onAllCompleted = { navController.navigate("result/${it}") }
     )
 }
 
@@ -45,7 +44,8 @@ fun GameScreenContent(
     uiState: MainUiState,
     uiEffect: MainViewEffect?,
     onEmojiTapped: (Emoji) -> Unit,
-    onCompleteAnimation: () -> Unit
+    onCompleteAnimation: () -> Unit,
+    onAllCompleted: (gameClearTime: Long) -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -54,19 +54,16 @@ fun GameScreenContent(
                 onEmojiTapped(it)
             }
         }
-        if (uiEffect is MainViewEffect.OnCollectAnswer) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = Color.DarkGray.copy(alpha = 0.5f)),
-                contentAlignment = Alignment.Center
-            ) {
-                LaunchedEffect(null) {
-                    delay(1000)
-                    onCompleteAnimation()
-                }
-                Text(text = "👏", style = TextStyle(fontSize = 48.sp))
+        when (uiEffect) {
+            is MainViewEffect.OnCollectAnswer -> {
+                CollectAnswer(onCompleteAnimation)
             }
+            is MainViewEffect.OnAllCompleted -> {
+                LaunchedEffect(true) {
+                    onAllCompleted(uiEffect.gameClearTime)
+                }
+            }
+            else -> Unit
         }
     }
 }
@@ -118,6 +115,22 @@ fun EmojiGrid(emojiList: List<Emoji>, onEmojiTapped: (Emoji) -> Unit) {
     }
 }
 
+@Composable
+fun CollectAnswer(onCompleteAnimation: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = Color.DarkGray.copy(alpha = 0.5f)),
+        contentAlignment = Alignment.Center
+    ) {
+        LaunchedEffect(true) {
+            delay(1000)
+            onCompleteAnimation()
+        }
+        Text(text = "👏", style = TextStyle(fontSize = 48.sp))
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun PreviewGameScreen() {
@@ -125,7 +138,8 @@ fun PreviewGameScreen() {
         uiState = MainUiState(emojiList = emojis),
         uiEffect = null,
         onEmojiTapped = {},
-        onCompleteAnimation = {}
+        onCompleteAnimation = {},
+        onAllCompleted = {}
     )
 }
 
