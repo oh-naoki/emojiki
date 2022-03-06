@@ -29,7 +29,7 @@ class GameScreenViewModel : ViewModel() {
 
     fun onCompleteAnimationEnded() {
         uiEffect = null
-        if (uiState.gameCount == 2) {
+        if (uiState.gameCount == 5) {
             uiEffect = MainViewEffect.OnAllCompleted(stopWatch.getTotalLapTimeSec())
         } else {
             uiState = uiState.copy(emojiList = emojis.shuffled(), targetEmoji = emojis.random())
@@ -69,7 +69,6 @@ val emojis = listOf(
     "🪶",
     "🦩",
     "🐥",
-    "🐣",
     "🦉",
     "🦜",
     "🦚",
